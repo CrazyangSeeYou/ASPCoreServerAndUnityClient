@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -64,6 +65,9 @@ public class Startup
 
         // Add other services
         services.AddLogging(builder => builder.AddConsole());
+
+        // Register the IBlacklistService
+        services.AddSingleton<IBlacklistService, BlacklistService>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,17 +90,21 @@ public class Startup
     }
 }
 
-/*[Authorize]*/ // Securing the endpoint with JWT authorization
-
 [ApiController]
 [Route("Auth")]
 public class AuthController : ControllerBase
 {
     private const string ExpectedUsername = "123";
     private const string ExpectedPassword = "123";
-
-    private const string SecretKey = "te9pTxuphH0nWwsFDT0VEdmDpT2k1j2k"; // Replace with a secure secret key
+    private const string SecretKey = "te9pTxuphH0nWwsFDT0VEdmDpT2k1j2k";
     private readonly SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
+
+    private readonly IBlacklistService _blacklistService;
+
+    public AuthController(IBlacklistService blacklistService)
+    {
+        _blacklistService = blacklistService;
+    }
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
@@ -125,12 +133,27 @@ public class AuthController : ControllerBase
         }
     }
 
-    [Authorize] // Securing this endpoint with JWT authorization
+    [Authorize]
     [HttpPost("secure")]
     public IActionResult SecureEndpoint()
     {
         var message = "Secure endpoint accessed successfully";
         return Ok(new { Message = message });
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        // 从当前用户的 Claims 中获取 Subject (UserID)
+        var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+
+        // 将当前 Token 加入黑名单
+        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        _blacklistService.AddToBlacklist(userId, token);
+
+        var message = "登出成功";
+        return Ok(new { Success = true, Message = message });
     }
 
     private string GenerateToken()
@@ -143,12 +166,14 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.Name, ExpectedUsername)
                 // Add additional claims as needed
             }),
-            Expires = DateTime.UtcNow.AddHours(1), // Token expiration time
+            Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var tokenString = tokenHandler.WriteToken(token);
+
+        return tokenString;
     }
 
     public class LoginRequest
@@ -162,5 +187,30 @@ public class AuthController : ControllerBase
         public bool Success { get; set; }
         public string Message { get; set; }
         public string Token { get; set; }
+    }
+}
+
+public interface IBlacklistService
+{
+    void AddToBlacklist(string userId, string token);
+}
+
+public class BlacklistService : IBlacklistService
+{
+    private readonly IDictionary<string, HashSet<string>> _blacklist = new Dictionary<string, HashSet<string>>();
+
+    public void AddToBlacklist(string userId, string token)
+    {
+        if (!_blacklist.ContainsKey(userId))
+        {
+            _blacklist[userId] = new HashSet<string>();
+        }
+
+        _blacklist[userId].Add(token);
+    }
+
+    public bool IsTokenBlacklisted(string userId, string token)
+    {
+        return _blacklist.ContainsKey(userId) && _blacklist[userId].Contains(token);
     }
 }

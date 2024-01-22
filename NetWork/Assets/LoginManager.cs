@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine.UI; // 需要导入这个命名空间
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class LoginManager : MonoBehaviour
 {
@@ -13,14 +14,21 @@ public class LoginManager : MonoBehaviour
     public InputField userName;
     public InputField passWord;
     public Button btn;
-
+    public Button btn_LoginOut;
     private const string loginUrl = "http://127.0.0.1:5000/Auth/login";
+
+    private string loginOutUrl = "http://127.0.0.1:5000/Auth/logout";
 
     private void Start()
     {
         btn.onClick.AddListener(() =>
         {
             StartCoroutine(LoginRequest());
+        });
+
+        btn_LoginOut.onClick.AddListener(() =>
+        {
+            StartCoroutine(LogoutRequest());
         });
     }
 
@@ -64,6 +72,26 @@ public class LoginManager : MonoBehaviour
             {
                 Debug.LogError("Error: " + request.error);
             }
+        }
+    }
+
+    private IEnumerator LogoutRequest()
+    {
+        UnityWebRequest request = UnityWebRequest.Post(loginOutUrl, "");
+        request.SetRequestHeader("Authorization", "Bearer " + LoginManager.TOKEN);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Logout successful");
+            // 在这里处理退出登录成功的逻辑，例如清除本地保存的Token等
+            LoginManager.TOKEN = "";
+        }
+        else
+        {
+            Debug.LogError("Logout failed: " + request.error);
+            // 在这里处理退出登录失败的逻辑
         }
     }
 
