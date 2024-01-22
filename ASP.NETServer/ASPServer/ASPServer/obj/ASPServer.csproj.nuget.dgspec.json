@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj": {}
+    "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj": {}
   },
   "projects": {
-    "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj": {
+    "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
+        "projectUniqueName": "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
         "projectName": "ASPServer",
-        "projectPath": "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
+        "projectPath": "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
         "packagesPath": "C:\\Users\\Yang\\.nuget\\packages\\",
-        "outputPath": "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\obj\\",
+        "outputPath": "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Yang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -42,7 +42,7 @@
           "dependencies": {
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[6.12.1, )"
+              "version": "[7.2.0, )"
             }
           },
           "imports": [

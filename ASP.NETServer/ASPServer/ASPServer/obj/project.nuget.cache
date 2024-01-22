@@ -1,36 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "VpwEK6xHO3QZu8rvbtxOxCCgsVakxE4iizWxuP2F98/hJWMmgysufGrU5JX6HC+vOtVbrFmDHGxpO/GNidTxZg==",
+  "dgSpecHash": "7h7PNdzBpfPKn9FU19LxIbugE6YY3su8a2K45n44ajMGIZe6gF1JfDZvjcjqEw/R+MaMRXTWhLMbD3hLbAlVcQ==",
   "success": true,
-  "projectFilePath": "E:\\NetWork\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
+  "projectFilePath": "E:\\GitHub_Project\\ASP.NETServer\\ASPServer\\ASPServer\\ASPServer.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
-    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\6.12.1\\microsoft.identitymodel.jsonwebtokens.6.12.1.nupkg.sha512",
-    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.logging\\6.12.1\\microsoft.identitymodel.logging.6.12.1.nupkg.sha512",
-    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.tokens\\6.12.1\\microsoft.identitymodel.tokens.6.12.1.nupkg.sha512",
-    "C:\\Users\\Yang\\.nuget\\packages\\system.identitymodel.tokens.jwt\\6.12.1\\system.identitymodel.tokens.jwt.6.12.1.nupkg.sha512",
-    "C:\\Users\\Yang\\.nuget\\packages\\system.security.cryptography.cng\\4.5.0\\system.security.cryptography.cng.4.5.0.nupkg.sha512"
+    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.abstractions\\7.2.0\\microsoft.identitymodel.abstractions.7.2.0.nupkg.sha512",
+    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\7.2.0\\microsoft.identitymodel.jsonwebtokens.7.2.0.nupkg.sha512",
+    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.logging\\7.2.0\\microsoft.identitymodel.logging.7.2.0.nupkg.sha512",
+    "C:\\Users\\Yang\\.nuget\\packages\\microsoft.identitymodel.tokens\\7.2.0\\microsoft.identitymodel.tokens.7.2.0.nupkg.sha512",
+    "C:\\Users\\Yang\\.nuget\\packages\\system.identitymodel.tokens.jwt\\7.2.0\\system.identitymodel.tokens.jwt.7.2.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1902",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "包 \"System.IdentityModel.Tokens.Jwt\" 6.12.1 具有已知的 中 严重性漏洞，https://github.com/advisories/GHSA-59j7-ghrg-fj52",
-      "libraryId": "System.IdentityModel.Tokens.Jwt",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
-    {
-      "code": "NU1902",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "包 \"System.IdentityModel.Tokens.Jwt\" 6.12.1 具有已知的 中 严重性漏洞，https://github.com/advisories/GHSA-8g9c-28fc-mcx2",
-      "libraryId": "System.IdentityModel.Tokens.Jwt",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

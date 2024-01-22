@@ -34,7 +34,7 @@ public class File_UpAndDown : MonoBehaviour
     private IEnumerator UploadFile()
     {
         string apiUrl = "http://127.0.0.1:5000/File/upload";
-        string filePath = "E:\\NetWork\\NetWork\\File\\UpLoad\\file.txt";
+        string filePath = "E:\\GitHub_Project\\NetWork\\File\\UpLoad\\file.txt";
 
         byte[] fileData = File.ReadAllBytes(filePath);
 

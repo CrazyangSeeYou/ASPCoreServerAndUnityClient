@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -11,13 +12,14 @@ public class FileController : ControllerBase
 {
     private readonly ILogger<FileController> _logger;
 
-    private string path_FileRoot = "E:\\NetWork\\ASP.NETServer\\File";
+    private string path_FileRoot = "E:\\GitHub_Project\\ASP.NETServer\\File";
 
     public FileController(ILogger<FileController> logger)
     {
         _logger = logger;
     }
 
+    [Authorize]
     [HttpPost("upload")]
     public async Task<IActionResult> Upload([FromBody] FileRequest fileRequest)
     {
@@ -55,6 +57,7 @@ public class FileController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("download")]
     public IActionResult Download([FromQuery] string userId, [FromQuery] string fileName)
     {

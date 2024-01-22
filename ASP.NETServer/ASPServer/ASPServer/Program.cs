@@ -91,7 +91,7 @@ public class AuthController : ControllerBase
     private const string ExpectedUsername = "123";
     private const string ExpectedPassword = "123";
 
-    private const string SecretKey = "12345678901234567890"; // Replace with a secure secret key
+    private const string SecretKey = "fgA/VDnnRkyKAv3jHc2cv8vtksWmJssm+K"; // Replace with a secure secret key
     private readonly SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
 
     [HttpPost("login")]
@@ -132,11 +132,12 @@ public class AuthController : ControllerBase
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Name, ExpectedUsername)
+            new Claim(ClaimTypes.Name, ExpectedUsername)
                 // Add additional claims as needed
             }),
             Expires = DateTime.UtcNow.AddHours(1), // Token expiration time
-            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
+            // Use SecurityAlgorithms.HmacSha256 instead of SecurityAlgorithms.HmacSha256Signature
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
