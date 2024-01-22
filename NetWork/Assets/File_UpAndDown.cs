@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -53,6 +54,7 @@ public class File_UpAndDown : MonoBehaviour
             request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + LoginManager.TOKEN);
 
             yield return request.SendWebRequest();
 
@@ -79,6 +81,7 @@ public class File_UpAndDown : MonoBehaviour
         // 创建UnityWebRequest
         using (UnityWebRequest request = UnityWebRequest.Get(downloadUrl))
         {
+            request.SetRequestHeader("Authorization", "Bearer " + LoginManager.TOKEN);
             // 发送请求
             yield return request.SendWebRequest();
 
@@ -88,7 +91,7 @@ public class File_UpAndDown : MonoBehaviour
                 byte[] fileData = request.downloadHandler.data;
 
                 // 保存文件到本地
-                File.WriteAllBytes($"E:\\NetWork\\NetWork\\File\\DownLoad\\{fileName}", fileData); // 替换成实际保存路径
+                File.WriteAllBytes($"E:\\GitHub_Project\\NetWork\\File\\\\DownLoad\\{fileName}", fileData); // 替换成实际保存路径
 
                 Debug.Log("File downloaded successfully.");
             }

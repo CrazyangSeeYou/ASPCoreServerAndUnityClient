@@ -64,3 +64,6 @@ E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\obj\Debug\net8.0\refint\ASPS
 E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\obj\Debug\net8.0\ASPServer.pdb
 E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\obj\Debug\net8.0\ASPServer.genruntimeconfig.cache
 E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\obj\Debug\net8.0\ref\ASPServer.dll
+E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+E:\GitHub_Project\ASP.NETServer\ASPServer\ASPServer\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll

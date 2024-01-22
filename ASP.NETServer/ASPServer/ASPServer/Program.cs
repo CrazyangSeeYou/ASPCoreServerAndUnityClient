@@ -1,24 +1,17 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging.Console;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
-#region 启动后台服务
-
-/// <summary>
-/// 启动服务
-/// </summary>
 public class Program
 {
     public static void Main(string[] args)
@@ -30,7 +23,6 @@ public class Program
        Host.CreateDefaultBuilder(args)
            .ConfigureWebHostDefaults(webBuilder =>
            {
-               //开启服务，以指定的IP和端口
                webBuilder.UseStartup<Startup>();
                webBuilder.UseUrls("http://127.0.0.1:5000");
            })
@@ -39,10 +31,8 @@ public class Program
                logging.ClearProviders();
                logging.AddConsole(options =>
                {
-                   //在控制台显示调试的信息
-                   //options.IncludeScopes = true;
                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss";
-                   options.LogToStandardErrorThreshold = LogLevel.Information; // Adjust log level as needed
+                   options.LogToStandardErrorThreshold = LogLevel.Information;
                });
            });
 }
@@ -52,6 +42,27 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
+
+        // Add JWT authentication services
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("te9pTxuphH0nWwsFDT0VEdmDpT2k1j2k")), // Replace with your secret key
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+        // Add other services
         services.AddLogging(builder => builder.AddConsole());
     }
 
@@ -62,7 +73,12 @@ public class Startup
             app.UseDeveloperExceptionPage();
         }
 
+        // Use authentication middleware
+        app.UseAuthentication();
+
         app.UseRouting();
+        app.UseAuthorization();
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
@@ -70,42 +86,26 @@ public class Startup
     }
 }
 
-#endregion 启动后台服务
+/*[Authorize]*/ // Securing the endpoint with JWT authorization
 
-#region 登录验证测试
-
-/// <summary>
-/// 登录验证相关代码
-/// </summary>
 [ApiController]
 [Route("Auth")]
 public class AuthController : ControllerBase
 {
-    private readonly ILogger<AuthController> _logger;
-
-    public AuthController(ILogger<AuthController> logger)
-    {
-        _logger = logger;
-    }
-
     private const string ExpectedUsername = "123";
     private const string ExpectedPassword = "123";
 
-    private const string SecretKey = "fgA/VDnnRkyKAv3jHc2cv8vtksWmJssm+K"; // Replace with a secure secret key
+    private const string SecretKey = "te9pTxuphH0nWwsFDT0VEdmDpT2k1j2k"; // Replace with a secure secret key
     private readonly SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        _logger.LogInformation($"收到登录请求. Username: {request.Username}, Password: {request.Password}");
-
         if (request != null)
         {
             if (request.Username == ExpectedUsername && request.Password == ExpectedPassword)
             {
                 var message = "登录成功";
-                //var response = new LoginResponse { Success = true, Message = message };
-
                 var token = GenerateToken();
                 var response = new LoginResponse { Success = true, Message = message, Token = token };
                 return Ok(response);
@@ -125,6 +125,14 @@ public class AuthController : ControllerBase
         }
     }
 
+    [Authorize] // Securing this endpoint with JWT authorization
+    [HttpPost("secure")]
+    public IActionResult SecureEndpoint()
+    {
+        var message = "Secure endpoint accessed successfully";
+        return Ok(new { Message = message });
+    }
+
     private string GenerateToken()
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -132,12 +140,11 @@ public class AuthController : ControllerBase
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-            new Claim(ClaimTypes.Name, ExpectedUsername)
+                new Claim(ClaimTypes.Name, ExpectedUsername)
                 // Add additional claims as needed
             }),
             Expires = DateTime.UtcNow.AddHours(1), // Token expiration time
-            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
-            // Use SecurityAlgorithms.HmacSha256 instead of SecurityAlgorithms.HmacSha256Signature
+            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -154,9 +161,6 @@ public class AuthController : ControllerBase
     {
         public bool Success { get; set; }
         public string Message { get; set; }
-
         public string Token { get; set; }
     }
 }
-
-#endregion 登录验证测试

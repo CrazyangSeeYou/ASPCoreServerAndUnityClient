@@ -4,14 +4,15 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("File")]
+[Authorize] // Apply authorization globally for the entire controller
 public class FileController : ControllerBase
 {
     private readonly ILogger<FileController> _logger;
-
     private string path_FileRoot = "E:\\GitHub_Project\\ASP.NETServer\\File";
 
     public FileController(ILogger<FileController> logger)
@@ -19,8 +20,8 @@ public class FileController : ControllerBase
         _logger = logger;
     }
 
-    [Authorize]
     [HttpPost("upload")]
+    [Authorize] // Authorize each method individually
     public async Task<IActionResult> Upload([FromBody] FileRequest fileRequest)
     {
         try
@@ -30,7 +31,9 @@ public class FileController : ControllerBase
             {
                 return BadRequest("User ID is required.");
             }
-            _logger.LogInformation($"收到上传请求. UserID: {fileRequest.UserId}, FileName: {fileRequest.FileName}, FileLength: {fileRequest.FileData.Length}");
+
+            _logger.LogInformation($"Received upload request. UserID: {fileRequest.UserId}, FileName: {fileRequest.FileName}, FileLength: {fileRequest.FileData.Length}");
+
             // Create a folder for the user if not exists
             string userFolderPath = Path.Combine(path_FileRoot, fileRequest.UserId);
             if (!Directory.Exists(userFolderPath))
@@ -57,8 +60,8 @@ public class FileController : ControllerBase
         }
     }
 
-    [Authorize]
     [HttpGet("download")]
+    [Authorize] // Authorize each method individually
     public IActionResult Download([FromQuery] string userId, [FromQuery] string fileName)
     {
         try
@@ -69,7 +72,7 @@ public class FileController : ControllerBase
                 return BadRequest("User ID is required.");
             }
 
-            _logger.LogInformation($"收到下载请求. UserID: {userId}, FileName: {fileName}");
+            _logger.LogInformation($"Received download request. UserID: {userId}, FileName: {fileName}");
 
             // Construct the file path based on user ID and file name
             string filePath = Path.Combine(path_FileRoot, userId, fileName);

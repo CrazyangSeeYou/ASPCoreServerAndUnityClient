@@ -8,19 +8,16 @@ using Newtonsoft.Json.Linq;
 
 public class LoginManager : MonoBehaviour
 {
+    public static string TOKEN = "";
+
     public InputField userName;
     public InputField passWord;
     public Button btn;
 
-    private const string loginUrl = "http://127.0.0.1:5000/login";
+    private const string loginUrl = "http://127.0.0.1:5000/Auth/login";
 
     private void Start()
     {
-        // 示例使用 application/x-www-form-urlencoded 格式
-
-        // 如果你的服务器端期望 JSON 格式，使用下面的示例
-        // StartCoroutine(LoginRequestJson("123", "123"));
-
         btn.onClick.AddListener(() =>
         {
             StartCoroutine(LoginRequest());
@@ -29,50 +26,69 @@ public class LoginManager : MonoBehaviour
 
     private IEnumerator LoginRequest()
     {
-        string url = "http://127.0.0.1:5000/auth/login";
+        // Construct JSON data for login request
+        JObject json = new JObject();
+        json.Add("Username", userName.text);
+        json.Add("Password", passWord.text);
 
-        // Create login request data as JSON
-        JObject obj = new JObject();
-        obj.Add("username", userName.text);
-        obj.Add("password", passWord.text);
-        //string jsonData = "{\"username\":\"12323\",\"password\":\"123\"}";
-        byte[] postData = System.Text.Encoding.UTF8.GetBytes(obj.ToString());
-
-        UnityWebRequest request = UnityWebRequest.Post(url, "POST");
-        request.uploadHandler = new UploadHandlerRaw(postData);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        // Send POST request to the login endpoint
+        using (UnityWebRequest request = new UnityWebRequest(loginUrl, "POST"))
         {
-            string responseJson = request.downloadHandler.text;
-            LoginResponse loginResponse = JsonUtility.FromJson<LoginResponse>(responseJson);
+            byte[] postData = System.Text.Encoding.UTF8.GetBytes(json.ToString());
+            request.uploadHandler = new UploadHandlerRaw(postData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-            if (loginResponse != null)
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                if (loginResponse.success)
+                // Request successful, parse server response
+                string responseJson = request.downloadHandler.text;
+                LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(responseJson);
+
+                if (loginResponse != null && loginResponse.Success)
                 {
-                    Debug.Log("Login Success: " + loginResponse.message);
+                    Debug.Log("Login Successful! Token: " + loginResponse.Token);
 
-                    string token = loginResponse.token;
-
-                    Debug.Log("token: " + loginResponse.token);
+                    TOKEN = loginResponse.Token;
+                    // Include the token in subsequent requests to secure endpoints
+                    StartCoroutine(SecureEndpointRequest(loginResponse.Token));
                 }
                 else
                 {
-                    Debug.Log("Login Failed: " + loginResponse.message);
+                    Debug.Log("Login Failed: " + loginResponse.Message);
                 }
             }
             else
             {
-                Debug.LogError("Error parsing JSON response.");
+                Debug.LogError("Error: " + request.error);
             }
         }
-        else
+    }
+
+    private IEnumerator SecureEndpointRequest(string token)
+    {
+        // Make a request to the secure endpoint with the JWT token
+        string secureEndpointUrl = "http://127.0.0.1:5000/Auth/secure";
+
+        using (UnityWebRequest request = new UnityWebRequest(secureEndpointUrl, "POST"))
         {
-            Debug.LogError("Error: " + request.error);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Authorization", "Bearer " + token);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                // Request to secure endpoint successful
+                string responseJson = request.downloadHandler.text;
+                Debug.Log("Secure Endpoint Response: " + responseJson);
+            }
+            else
+            {
+                Debug.LogError("Error: " + request.error);
+            }
         }
     }
 }
@@ -80,7 +96,7 @@ public class LoginManager : MonoBehaviour
 [System.Serializable]
 public class LoginResponse
 {
-    public bool success;
-    public string message;
-    public string token;
+    public bool Success;
+    public string Message;
+    public string Token;
 }
